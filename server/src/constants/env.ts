@@ -1,0 +1,23 @@
+/**
+ * Safely gets an environment variable or throws if missing
+ * @param key - Environment variable name
+ * @param defaultValue - Fallback value if variable not set
+ * @throws {Error} When variable is required but missing
+ * @returns The environment variable value
+ */
+const getEnv = (key: string, defaultValue?: string): string => {
+  const value = process.env[key] || defaultValue;
+
+  // Throw error for missing required variables (when no default provided)
+  if (value === undefined) {
+    throw new Error(`Environment variable ${key} is not defined`);
+  }
+
+  return value;
+};
+
+// Server configuration
+export const PORT = getEnv("PORT", "3000"); // Default to 3000 if not specified
+
+// CORS origin for frontend requests
+export const APP_ORIGIN = getEnv("APP_ORIGIN", "http://localhost:5173"); // Common default for Vite dev server
