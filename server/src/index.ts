@@ -4,6 +4,7 @@ import express, { Express, Request, Response } from "express";
 import { APP_ORIGIN, PORT } from "./constants/env";
 import { OK } from "./constants/http";
 import errorHandler from "./middlewares/errorHandler";
+import authRoutes from "./modules/auth/auth.route";
 
 const app: Express = express();
 
@@ -30,6 +31,8 @@ app.get("/", (req: Request, res: Response) => {
     message: "Server is running",
   });
 });
+
+app.use("/api/auth", authRoutes);
 
 // Central error handling middleware (must be after all routes)
 app.use(errorHandler);

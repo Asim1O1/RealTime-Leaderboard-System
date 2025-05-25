@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables from .env file
+
 /**
  * Safely gets an environment variable or throws if missing
  * @param key - Environment variable name
@@ -20,4 +24,8 @@ const getEnv = (key: string, defaultValue?: string): string => {
 export const PORT = getEnv("PORT", "3000"); // Default to 3000 if not specified
 
 // CORS origin for frontend requests
-export const APP_ORIGIN = getEnv("APP_ORIGIN", "http://localhost:5173"); // Common default for Vite dev server
+export const APP_ORIGIN = getEnv("APP_ORIGIN", "http://localhost:5173");
+
+export const JWT_SECRET = getEnv("JWT_SECRET");
+
+export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET");
