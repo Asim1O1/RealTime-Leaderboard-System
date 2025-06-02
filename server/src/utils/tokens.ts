@@ -30,4 +30,13 @@ const generateTokens = (payload: TokenPayload) => {
   return { accessToken, refreshToken };
 };
 
+export const verifyToken = (token: string) => {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
+    return { payload, error: null };
+  } catch (error) {
+    return { payload: null, error: (error as Error).message };
+  }
+};
+
 export default generateTokens;

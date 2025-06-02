@@ -5,6 +5,8 @@ import { APP_ORIGIN, PORT } from "./constants/env";
 import { OK } from "./constants/http";
 import errorHandler from "./middlewares/errorHandler";
 import authRoutes from "./modules/auth/auth.route";
+import leaderboardRouter from "./modules/leaderboard/leaderboard.route";
+import scoreRouter from "./modules/score/score.route";
 
 const app: Express = express();
 
@@ -33,6 +35,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/score", scoreRouter);
+app.use("/api/leaderboard", leaderboardRouter);
 
 // Central error handling middleware (must be after all routes)
 app.use(errorHandler);
