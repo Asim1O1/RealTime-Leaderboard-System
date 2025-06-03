@@ -1,46 +1,35 @@
+// api.ts
 import axios from "axios";
 
-const options = {
+const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
-};
+  withCredentials: true, // This is crucial for cookies to be sent
+});
 
-const API = axios.create(options);
-
-// Modified interceptor
+// Response interceptor for handling token refresh
+// In your API interceptor
 API.interceptors.response.use(
-  (response) => response, // Success case
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const { status, data } = error.response || {};
 
-    // Case 1: Token expired (401 + specific error message)
-    if (
-      status === 401 &&
-      (data?.message === "Token expired" || data?.message === "Invalid token")
-    ) {
-      if (!originalRequest._retry) {
-        originalRequest._retry = true; // Prevents infinite loops
-        try {
-          // Attempt to refresh tokens
-          await API.get("/auth/refresh");
-          // Retry the original request
-          return API(originalRequest);
-        } catch (refreshError) {
-          console.error("Refresh token failed:", refreshError);
-          // Redirect to login if refresh fails
-          window.location.href = "/login";
-          return Promise.reject(refreshError);
-        }
+    // Skip refresh attempt for login endpoint
+    if (originalRequest.url.includes("/auth/login")) {
+      return Promise.reject(error);
+    }
+
+    // Only attempt refresh on 401 errors
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        await API.get("/auth/refresh");
+        return API(originalRequest);
+      } catch (refreshError) {
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 
-    // Case 2: Other 401 errors (e.g., no token)
-    if (status === 401) {
-      window.location.href = "/login"; // Force logout
-    }
-
-    // For all other errors, reject normally
     return Promise.reject(error);
   }
 );

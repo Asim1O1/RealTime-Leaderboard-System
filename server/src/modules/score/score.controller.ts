@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CREATED, UNAUTHORIZED } from "../../constants/http";
+import { CREATED, OK, UNAUTHORIZED } from "../../constants/http";
 import { submitScore as submitScoreToRedis } from "../../services/redisLeaderboardService";
 import appAssert from "../../utils/appAssert";
 import catchErrors from "../../utils/catchErrors";
@@ -12,7 +12,7 @@ const scoreSchema = z.object({
 
 export const submitScoreHandler = catchErrors(async (req, res) => {
   const { score } = scoreSchema.parse(req.body);
-  const userId = (req as any).user?.id;
+  const userId = (req as any).userId;
   appAssert(userId, UNAUTHORIZED, "Unauthorized");
 
   // Save score record to Postgres (history)
@@ -37,5 +37,21 @@ export const submitScoreHandler = catchErrors(async (req, res) => {
   res.status(CREATED).json({
     success: true,
     message: "Score submitted successfully",
+  });
+});
+
+export const getMyScoresHandler = catchErrors(async (req, res) => {
+  const userId = (req as any).userId; // This matches what your auth middleware sets
+  appAssert(userId, UNAUTHORIZED, "Unauthorized");
+
+  const scores = await prisma.score.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.status(OK).json({
+    success: true,
+    message: "Scores fetched Successfully",
+    scores,
   });
 });

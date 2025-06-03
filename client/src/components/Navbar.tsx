@@ -1,32 +1,56 @@
-import { Clock, Home, Menu, Trophy, User, X } from "lucide-react";
+import {
+  Clock,
+  Home,
+  LogIn,
+  Menu,
+  Trophy,
+  User,
+  UserPlus,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/auth.store";
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuthStore();
 
-  // Replace these with your actual navigation functions
   const navigateToHome = () => {
     navigate("/");
     setIsMobileMenuOpen(false);
   };
 
   const navigateToGame = () => {
-    console.log("Navigate to game");
     navigate("/type");
     setIsMobileMenuOpen(false);
   };
 
   const navigateToLeaderboard = () => {
-    console.log("Navigate to leaderboard");
     navigate("/leaderboard");
+    setIsMobileMenuOpen(false);
   };
 
   const navigateToProfile = () => {
-    console.log("Navigate to profile");
     navigate("/profile");
     setIsMobileMenuOpen(false);
+  };
+
+  const navigateToLogin = () => {
+    navigate("/login");
+    setIsMobileMenuOpen(false);
+  };
+
+  const navigateToRegister = () => {
+    navigate("/register");
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMobileMenuOpen(false);
+    navigate("/");
   };
 
   const toggleMobileMenu = () => {
@@ -76,13 +100,40 @@ const Navbar: React.FC = () => {
               Leaderboard
             </button>
 
-            <button
-              onClick={navigateToProfile}
-              className="flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium"
-            >
-              <User className="h-4 w-4" />
-              Profile
-            </button>
+            {isAuthenticated ? (
+              <>
+                <button
+                  onClick={navigateToProfile}
+                  className="flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium"
+                >
+                  <User className="h-4 w-4" />
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-700 hover:text-red-600 transition-colors duration-200 font-medium"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={navigateToLogin}
+                  className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </button>
+                <button
+                  onClick={navigateToRegister}
+                  className="flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Register
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -126,13 +177,40 @@ const Navbar: React.FC = () => {
                 Leaderboard
               </button>
 
-              <button
-                onClick={navigateToProfile}
-                className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium py-2"
-              >
-                <User className="h-5 w-5" />
-                Profile
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <button
+                    onClick={navigateToProfile}
+                    className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium py-2"
+                  >
+                    <User className="h-5 w-5" />
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors duration-200 font-medium py-2"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={navigateToLogin}
+                    className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium py-2"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    Login
+                  </button>
+                  <button
+                    onClick={navigateToRegister}
+                    className="flex items-center gap-3 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg transition-colors duration-200 font-medium w-full justify-start"
+                  >
+                    <UserPlus className="h-5 w-5" />
+                    Register
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Express, Request, Response } from "express";
+import { initializeCloudinary } from "./config/cloudinaryConfig";
 import { APP_ORIGIN, PORT } from "./constants/env";
 import { OK } from "./constants/http";
 import errorHandler from "./middlewares/errorHandler";
@@ -24,6 +25,8 @@ app.use(
 
 // Parse cookies from incoming requests
 app.use(cookieParser());
+
+initializeCloudinary();
 
 // Health check endpoint
 

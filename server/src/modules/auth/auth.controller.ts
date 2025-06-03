@@ -168,6 +168,7 @@ export const logOutHandler = catchErrors(async (req, res) => {
 export const refreshHandler = catchErrors(async (req, res) => {
   // 1. Get refresh token from cookies
   const refreshToken = req.cookies?.refreshToken;
+  console.log("Refresh token received:", refreshToken);
   appAssert(refreshToken, UNAUTHORIZED, "Refresh token missing");
 
   // 2. Verify refresh token

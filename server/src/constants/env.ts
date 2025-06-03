@@ -29,7 +29,7 @@ export const APP_ORIGIN = getEnv("APP_ORIGIN", "http://localhost:5173");
 export const JWT_SECRET = getEnv("JWT_SECRET");
 
 export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET");
-export const CLOUDINARY_CLOUD_KEY = getEnv("CLOUDINARY_CLOUD_KEY");
+export const CLOUDINARY_CLOUD_NAME = getEnv("CLOUDINARY_CLOUD_NAME"); // Fixed variable name
 export const CLOUDINARY_API_KEY = getEnv("CLOUDINARY_API_KEY");
 export const CLOUDINARY_API_SECRET = getEnv("CLOUDINARY_API_SECRET");
 export const REDIS_URL = getEnv("REDIS_URL", "redis://localhost:6379");

@@ -7,6 +7,10 @@ import { verifyToken } from "../utils/tokens";
 // wrap with catchErrors() if you need this to be async
 const authenticate: RequestHandler = (req, res, next) => {
   const accessToken = req.cookies.accessToken as string | undefined;
+  console.log("the access token got is ", accessToken);
+  console.log("All cookies:", req.cookies);
+  console.log("Cookie header:", req.headers.cookie);
+
   appAssert(
     accessToken,
     UNAUTHORIZED,
@@ -15,6 +19,8 @@ const authenticate: RequestHandler = (req, res, next) => {
   );
 
   const { error, payload } = verifyToken(accessToken);
+  console.log("Token verification result:", { error, payload });
+
   appAssert(
     payload,
     UNAUTHORIZED,
@@ -23,7 +29,6 @@ const authenticate: RequestHandler = (req, res, next) => {
   );
 
   (req as unknown as { userId: string }).userId = payload.userId;
-
   next();
 };
 
