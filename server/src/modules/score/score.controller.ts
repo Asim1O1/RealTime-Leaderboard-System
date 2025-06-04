@@ -8,10 +8,11 @@ import { redisClient } from "../../utils/redis";
 
 const scoreSchema = z.object({
   score: z.number().int().min(0),
+  accuracy: z.number().min(0).max(100),
 });
 
 export const submitScoreHandler = catchErrors(async (req, res) => {
-  const { score } = scoreSchema.parse(req.body);
+  const { score, accuracy } = scoreSchema.parse(req.body);
   const userId = (req as any).userId;
   appAssert(userId, UNAUTHORIZED, "Unauthorized");
 
@@ -20,6 +21,7 @@ export const submitScoreHandler = catchErrors(async (req, res) => {
     data: {
       userId,
       value: score,
+      accuracy,
     },
   });
 

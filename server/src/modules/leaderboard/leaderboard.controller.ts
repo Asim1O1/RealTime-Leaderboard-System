@@ -21,19 +21,23 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
   const userIds = topScores.map((entry) => Number(entry.value));
 
   // Fetch user data from Postgres
-  const users = await prisma.user.findMany({
+  const usersWithScores = await prisma.user.findMany({
     where: { id: { in: userIds } },
     select: {
       id: true,
       username: true,
       profileImage: true,
+      scores: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { accuracy: true },
+      },
     },
   });
 
   // Create a map for quick lookup
-  const userMap = new Map(users.map((u) => [u.id, u]));
+  const userMap = new Map(usersWithScores.map((u) => [u.id, u]));
 
-  // Combine user info with scores and ranks
   const leaderboard = topScores.map((entry, index) => {
     const user = userMap.get(Number(entry.value));
     return {
@@ -42,6 +46,7 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
       username: user?.username,
       profileImage: user?.profileImage,
       score: entry.score,
+      accuracy: user?.scores[0]?.accuracy ?? null,
     };
   });
 
@@ -52,7 +57,7 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
 });
 
 export const getUserRankHandler = catchErrors(async (req, res) => {
-  const userId = (req as any).user?.id;
+  const userId = (req as any).userId;
   if (!userId) {
     return res.status(UNAUTHORIZED).json({
       success: false,

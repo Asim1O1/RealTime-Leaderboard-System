@@ -71,7 +71,7 @@ const TypingGamePage = () => {
       }
 
       // Build API URL with parameters
-      const apiUrl = `https://api.quotable.io/quotes/random?minLength=${minLength}&maxLength=${maxLength}&tags=${settings.category}&limit=1`;
+      const apiUrl = `http://api.quotable.io/quotes/random?minLength=${minLength}&maxLength=${maxLength}&tags=${settings.category}&limit=1`;
 
       const response = await fetch(apiUrl);
       const data = await response.json();
@@ -203,7 +203,7 @@ const TypingGamePage = () => {
 
   const handleSaveScore = async () => {
     try {
-      await submitScore({ score: wpm });
+      await submitScore({ score: wpm, accuracy: accuracy });
       setScoreSaved(true);
     } catch (err) {
       console.error("Failed to save score:", err);

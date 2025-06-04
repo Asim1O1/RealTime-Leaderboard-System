@@ -9,31 +9,51 @@ interface LeaderboardEntry {
   username: string;
   profileImage?: string;
   score: number;
+  accuracy?: number;
+  gamesPlayed?: number;
 }
+
 interface LeaderboardState {
   leaderboard: LeaderboardEntry[];
   userRank: number | null;
   userScore: number | null;
   loading: boolean;
   error: string | null;
+  lastFetched: number | null;
   fetchLeaderboard: () => Promise<void>;
-  fetchUserRank: (userId: number) => Promise<void>;
+  fetchUserRank: () => Promise<void>;
 }
 
 export const useLeaderboardStore = create<LeaderboardState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       leaderboard: [],
       userRank: null,
       userScore: null,
       loading: false,
       error: null,
+      lastFetched: null,
 
-      fetchLeaderboard: async () => {
+      fetchLeaderboard: async (forceRefresh = false) => {
+        const state = get();
+
+        // Skip if data is fresh (less than 5 minutes old) and not forcing refresh
+        if (
+          !forceRefresh &&
+          state.lastFetched &&
+          Date.now() - state.lastFetched < 5 * 60 * 1000
+        ) {
+          return;
+        }
+
         set({ loading: true, error: null });
         try {
           const leaderboard = await getLeaderboardApi();
-          set({ leaderboard, loading: false });
+          set({
+            leaderboard,
+            loading: false,
+            lastFetched: Date.now(),
+          });
         } catch (err: any) {
           set({
             error: err.message || "Failed to fetch leaderboard",
@@ -58,7 +78,13 @@ export const useLeaderboardStore = create<LeaderboardState>()(
       },
     }),
     {
-      name: "leaderboard-storage", // unique name for the storage
+      name: "leaderboard-storage",
+      partialize: (state) => ({
+        leaderboard: state.leaderboard,
+        userRank: state.userRank,
+        userScore: state.userScore,
+        lastFetched: state.lastFetched,
+      }),
     }
   )
 );

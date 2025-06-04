@@ -13,6 +13,7 @@ model User {
   username     String   @unique
   password     String
   profileImage String?
+  gamesPlayed  Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   scores       Score[]
@@ -22,6 +23,7 @@ model Score {
   id        Int      @id @default(autoincrement())
   userId    Int
   value     Int
+  accuracy  Float @default(0.0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 

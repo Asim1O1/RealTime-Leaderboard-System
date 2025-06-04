@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Score" ADD COLUMN     "accuracy" DOUBLE PRECISION NOT NULL DEFAULT 0.0;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "gamesPlayed" INTEGER NOT NULL DEFAULT 0;

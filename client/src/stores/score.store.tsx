@@ -7,6 +7,7 @@ interface Score {
   id: number;
   userId: number;
   value: number;
+  accuracy: number;
   createdAt: string;
 }
 interface ScoreState {
@@ -57,7 +58,7 @@ export const useScoreStore = create<ScoreState>()(
       },
     }),
     {
-      name: "score-storage", // unique name for the storage
+      name: "score-storage",
     }
   )
 );

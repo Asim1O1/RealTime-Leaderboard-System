@@ -31,7 +31,9 @@ const LoginPage: React.FC = () => {
       navigate("/");
     } catch (err) {
       console.log("Login error:", err);
-      toast.error(err?.message || "Login failed");
+      toast.error(
+        err?.response?.data?.message || err?.message || "Login failed"
+      );
     } finally {
       setIsLoading(false);
     }

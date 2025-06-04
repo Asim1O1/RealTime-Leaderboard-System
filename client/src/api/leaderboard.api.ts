@@ -2,7 +2,7 @@ import API from "../config/apiClient";
 
 export const getLeaderboardApi = async () => {
   try {
-    const response = await API.get("/leaderboard");
+    const response = await API.get("/leaderboard/top");
     console.log("Get Leaderboard response:", response);
 
     // Check if the response contains a success field
