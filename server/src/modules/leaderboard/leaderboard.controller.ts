@@ -15,9 +15,6 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
   // Get top user IDs and scores from Redis
   const topScores = await getTopScores(limit);
 
-  // topScores = [{ value: 'userId', score: number }, ...]
-
-  // Extract user IDs
   const userIds = topScores.map((entry) => Number(entry.value));
 
   // Fetch user data from Postgres
@@ -27,6 +24,7 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
       id: true,
       username: true,
       profileImage: true,
+      gamesPlayed: true,
       scores: {
         orderBy: { createdAt: "desc" },
         take: 1,
@@ -40,13 +38,26 @@ export const getLeaderboardHandler = catchErrors(async (req, res) => {
 
   const leaderboard = topScores.map((entry, index) => {
     const user = userMap.get(Number(entry.value));
+    if (!user) {
+      // Handle missing user case
+      return {
+        rank: index + 1,
+        userId: null,
+        username: "Unknown",
+        profileImage: null,
+        score: entry.score,
+        accuracy: 0.0,
+        gamesPlayed: 0,
+      };
+    }
     return {
       rank: index + 1,
       userId: user?.id,
       username: user?.username,
       profileImage: user?.profileImage,
       score: entry.score,
-      accuracy: user?.scores[0]?.accuracy ?? null,
+      accuracy: user?.scores[0]?.accuracy ?? 0.0,
+      gamesPlayed: user?.gamesPlayed ?? 0,
     };
   });
 
@@ -74,7 +85,7 @@ export const getUserRankHandler = catchErrors(async (req, res) => {
 
   res.status(OK).json({
     success: true,
-    rank: rank || null,
-    score: score !== null ? Number(score) : null,
+    rank: rank || 0,
+    score: score !== null ? Number(score) : 0,
   });
 });

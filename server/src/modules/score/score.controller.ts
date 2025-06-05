@@ -16,14 +16,27 @@ export const submitScoreHandler = catchErrors(async (req, res) => {
   const userId = (req as any).userId;
   appAssert(userId, UNAUTHORIZED, "Unauthorized");
 
-  // Save score record to Postgres (history)
-  await prisma.score.create({
-    data: {
-      userId,
-      value: score,
-      accuracy,
-    },
-  });
+  // Start a transaction to ensure both operations succeed or fail together
+  const [_, updatedUser] = await prisma.$transaction([
+    // Save score record to Postgres (history)
+    prisma.score.create({
+      data: {
+        userId,
+        value: score,
+        accuracy,
+      },
+    }),
+
+    // Increment gamesPlayed counter
+    prisma.user.update({
+      where: { id: userId },
+      data: {
+        gamesPlayed: {
+          increment: 1,
+        },
+      },
+    }),
+  ]);
 
   // Get current score from Redis
   const currentScore = await redisClient.zScore(
@@ -39,9 +52,9 @@ export const submitScoreHandler = catchErrors(async (req, res) => {
   res.status(CREATED).json({
     success: true,
     message: "Score submitted successfully",
+    gamesPlayed: updatedUser.gamesPlayed, // Optional: return the new count
   });
 });
-
 export const getMyScoresHandler = catchErrors(async (req, res) => {
   const userId = (req as any).userId; // This matches what your auth middleware sets
   appAssert(userId, UNAUTHORIZED, "Unauthorized");
