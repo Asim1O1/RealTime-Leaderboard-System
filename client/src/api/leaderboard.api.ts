@@ -1,12 +1,15 @@
 import API from "../config/apiClient";
 
 export const getLeaderboardApi = async () => {
+  console.log("Fetching leaderboard from API...");
   try {
     const response = await API.get("/leaderboard/top");
     console.log("Get Leaderboard response:", response);
 
     // Check if the response contains a success field
     if (!response.data.success) {
+      console.log("entered in error block");
+      console.error("Error fetching leaderboard:", response.data.message);
       throw new Error(response.data.message || "Failed to fetch leaderboard");
     }
 

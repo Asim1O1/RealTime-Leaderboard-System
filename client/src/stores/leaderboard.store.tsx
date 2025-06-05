@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { getLeaderboardApi, getUserRankApi } from "../api/leaderboard.api";
 
 interface LeaderboardEntry {
+  value: any;
   rank: number;
   userId: number;
   username: string;
@@ -20,19 +21,25 @@ interface LeaderboardState {
   loading: boolean;
   error: string | null;
   lastFetched: number | null;
-  fetchLeaderboard: () => Promise<void>;
+  fetchLeaderboard: (forceRefresh?: boolean) => Promise<void>;
   fetchUserRank: () => Promise<void>;
+  clearLeaderboard: (refetch?: boolean) => Promise<void>;
+  reset: () => void;
 }
+
+const initialState = {
+  leaderboard: [],
+  userRank: null,
+  userScore: null,
+  loading: false,
+  error: null,
+  lastFetched: null,
+};
 
 export const useLeaderboardStore = create<LeaderboardState>()(
   persist(
     (set, get) => ({
-      leaderboard: [],
-      userRank: null,
-      userScore: null,
-      loading: false,
-      error: null,
-      lastFetched: null,
+      ...initialState,
 
       fetchLeaderboard: async (forceRefresh = false) => {
         const state = get();
@@ -41,14 +48,17 @@ export const useLeaderboardStore = create<LeaderboardState>()(
         if (
           !forceRefresh &&
           state.lastFetched &&
-          Date.now() - state.lastFetched < 5 * 60 * 1000
+          Date.now() - state.lastFetched < 5 * 60 * 1000 &&
+          state.leaderboard.length > 0 // Also check if we have data
         ) {
           return;
         }
 
         set({ loading: true, error: null });
         try {
+          console.log("Fetching leaderboard...");
           const leaderboard = await getLeaderboardApi();
+          console.log("Fetched leaderboard:", leaderboard);
           set({
             leaderboard,
             loading: false,
@@ -66,7 +76,7 @@ export const useLeaderboardStore = create<LeaderboardState>()(
       fetchUserRank: async () => {
         set({ loading: true, error: null });
         try {
-          const { rank, score } = await getUserRankApi(); // no userId needed
+          const { rank, score } = await getUserRankApi();
           set({ userRank: rank, userScore: score, loading: false });
         } catch (err: any) {
           set({
@@ -75,6 +85,25 @@ export const useLeaderboardStore = create<LeaderboardState>()(
           });
           throw err;
         }
+      },
+
+      clearLeaderboard: async (refetch = true) => {
+        set({
+          leaderboard: [],
+          userRank: null,
+          userScore: null,
+          error: null,
+          lastFetched: null,
+        });
+
+        if (refetch) {
+          await get().fetchLeaderboard(true);
+          await get().fetchUserRank();
+        }
+      },
+
+      reset: () => {
+        set(initialState);
       },
     }),
     {
