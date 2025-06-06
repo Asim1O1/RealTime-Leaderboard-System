@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useScoreStore } from "../stores/score.store";
 
+import { Link } from "react-router-dom";
 import { GameHeader } from "../components/typing-game/GameHeader";
 import { GameTextArea } from "../components/typing-game/GameTextArea";
 import { ResultsModal } from "../components/typing-game/ResultsModal";
@@ -9,8 +10,10 @@ import { ScoresModal } from "../components/typing-game/ScoresModal";
 import { SettingsPanel } from "../components/typing-game/SettingsPanel";
 import { StatsPanel } from "../components/typing-game/StatsPanel";
 import { TextMetadata } from "../components/typing-game/TextModal";
+import { useAuthStore } from "../stores/auth.store";
 
 const TypingGamePage = () => {
+  const { isAuthenticated, user } = useAuthStore();
   const [gameText, setGameText] = useState(
     "Click 'New Text' to load fresh content for typing practice. You can choose from quotes, literature, or custom difficulty levels."
   );
@@ -34,9 +37,9 @@ const TypingGamePage = () => {
 
   // New settings for dynamic content
   const [settings, setSettings] = useState({
-    textLength: "medium", // short, medium, long
-    category: "motivational", // motivational, wisdom, famous-quotes
-    gameTime: 60, // 30, 60, 120 seconds
+    textLength: "medium",
+    category: "motivational",
+    gameTime: 60,
   });
 
   const inputRef = useRef(null);
@@ -320,104 +323,130 @@ const TypingGamePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
       <div className="max-w-6xl mx-auto">
-        <GameHeader
-          showSettings={showSettings}
-          setShowSettings={setShowSettings}
-          loadingText={loadingText}
-          isGameActive={isGameActive}
-          gameCompleted={gameCompleted}
-          handleNewText={handleNewText}
-          startGame={startGame}
-          pauseGame={pauseGame}
-          resetGame={resetGame}
-          handleViewScores={handleViewScores}
-        />
-
-        {showSettings && (
-          <SettingsPanel
-            settings={settings}
-            handleSettingsChange={handleSettingsChange}
-          />
-        )}
-
-        <StatsPanel
-          timeLeft={timeLeft}
-          wpm={wpm}
-          accuracy={accuracy}
-          progressPercentage={Math.round(
-            (userInput.length / gameText.length) * 100
-          )}
-          formatTime={formatTime}
-        />
-
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-          {textMetadata.author && (
-            <TextMetadata
-              author={textMetadata.author}
-              category={textMetadata.category}
-            />
-          )}
-
-          <GameTextArea
-            gameText={gameText}
-            userInput={userInput}
-            currentIndex={currentIndex}
-            loadingText={loadingText}
-            renderText={renderText}
-          />
-
-          {completionMessage && (
-            <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg text-green-800 font-medium text-center animate-pulse">
-              {completionMessage}
+        {!isAuthenticated ? (
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Please Log In to Play</h2>
+            <p className="mb-6">
+              You need to be logged in to access the typing game. Please sign in
+              or create an account to continue.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link
+                to="/login"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Register
+              </Link>
             </div>
-          )}
-
-          <textarea
-            id="typing-input"
-            ref={inputRef}
-            value={userInput}
-            onChange={handleInputChange}
-            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono text-lg resize-none"
-            rows={6}
-            placeholder={
-              isGameActive
-                ? "Start typing here..."
-                : "Click 'Start Game' to begin typing"
-            }
-            disabled={!isGameActive && !gameCompleted}
-            aria-disabled={!isGameActive && !gameCompleted}
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck="false"
-          />
-
-          <div className="mt-2 text-xs text-gray-500">
-            <span className="font-medium">Keyboard shortcuts:</span> Press Tab +
-            Enter to restart, Esc to pause
           </div>
-        </div>
+        ) : (
+          <>
+            <GameHeader
+              showSettings={showSettings}
+              setShowSettings={setShowSettings}
+              loadingText={loadingText}
+              isGameActive={isGameActive}
+              gameCompleted={gameCompleted}
+              handleNewText={handleNewText}
+              startGame={startGame}
+              pauseGame={pauseGame}
+              resetGame={resetGame}
+              handleViewScores={handleViewScores}
+            />
 
-        {gameCompleted && (
-          <ResultsModal
-            wpm={wpm}
-            accuracy={accuracy}
-            userInputLength={userInput.length}
-            error={error}
-            scoreSaved={scoreSaved}
-            loading={loading}
-            resetGame={resetGame}
-            handleNewText={handleNewText}
-            handleSaveScore={handleSaveScore}
-          />
-        )}
+            {showSettings && (
+              <SettingsPanel
+                settings={settings}
+                handleSettingsChange={handleSettingsChange}
+              />
+            )}
 
-        {showScores && (
-          <ScoresModal
-            scores={scores}
-            loading={loading}
-            error={error}
-            setShowScores={setShowScores}
-          />
+            <StatsPanel
+              timeLeft={timeLeft}
+              wpm={wpm}
+              accuracy={accuracy}
+              progressPercentage={Math.round(
+                (userInput.length / gameText.length) * 100
+              )}
+              formatTime={formatTime}
+            />
+
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+              {textMetadata.author && (
+                <TextMetadata
+                  author={textMetadata.author}
+                  category={textMetadata.category}
+                />
+              )}
+
+              <GameTextArea
+                gameText={gameText}
+                userInput={userInput}
+                currentIndex={currentIndex}
+                loadingText={loadingText}
+                renderText={renderText}
+              />
+
+              {completionMessage && (
+                <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg text-green-800 font-medium text-center animate-pulse">
+                  {completionMessage}
+                </div>
+              )}
+
+              <textarea
+                id="typing-input"
+                ref={inputRef}
+                value={userInput}
+                onChange={handleInputChange}
+                className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono text-lg resize-none"
+                rows={6}
+                placeholder={
+                  isGameActive
+                    ? "Start typing here..."
+                    : "Click 'Start Game' to begin typing"
+                }
+                disabled={!isGameActive && !gameCompleted}
+                aria-disabled={!isGameActive && !gameCompleted}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+              />
+
+              <div className="mt-2 text-xs text-gray-500">
+                <span className="font-medium">Keyboard shortcuts:</span> Press
+                Tab + Enter to restart, Esc to pause
+              </div>
+            </div>
+
+            {gameCompleted && (
+              <ResultsModal
+                wpm={wpm}
+                accuracy={accuracy}
+                userInputLength={userInput.length}
+                error={error}
+                scoreSaved={scoreSaved}
+                loading={loading}
+                resetGame={resetGame}
+                handleNewText={handleNewText}
+                handleSaveScore={handleSaveScore}
+              />
+            )}
+
+            {showScores && (
+              <ScoresModal
+                scores={scores}
+                loading={loading}
+                error={error}
+                setShowScores={setShowScores}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

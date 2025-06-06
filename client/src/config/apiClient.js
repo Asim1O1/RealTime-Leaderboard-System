@@ -1,13 +1,11 @@
-// api.ts
 import axios from "axios";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // This is crucial for cookies to be sent
+  withCredentials: true,
 });
 
-// Response interceptor for handling token refresh
-// In your API interceptor
+// API interceptor
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -22,7 +20,8 @@ API.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        await API.get("/auth/refresh");
+        const result = await API.post("/auth/refresh");
+        console.log("The result is", result);
         return API(originalRequest);
       } catch (refreshError) {
         window.location.href = "/login";

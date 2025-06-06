@@ -10,7 +10,6 @@ export const registerApi = async (userData) => {
     const response = await API.post("/auth/register", userData, config);
     console.log("Registration response:", response);
 
-    // Now response.data contains your actual API response
     if (!response.data.success) {
       throw new Error(response.data.message || "Registration failed");
     }

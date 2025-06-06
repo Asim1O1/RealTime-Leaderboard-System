@@ -6,6 +6,7 @@ import LeaderboardPage from "./pages/LeaderBoardPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import TypingGamePage from "./pages/TypingGamePage";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/type" element={<TypingGamePage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </MainLayout>
     </Router>
