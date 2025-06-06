@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 import jwt from "jsonwebtoken";
-import { Readable } from "stream";
 import { JWT_REFRESH_SECRET } from "../../constants/env";
 import {
   BAD_REQUEST,
@@ -13,21 +12,14 @@ import { loginSchema, registerSchema } from "../../schemas/auth.schema";
 import appAssert from "../../utils/appAssert";
 import { comparePassword } from "../../utils/auth";
 import { hashValue } from "../../utils/bcrypt";
+import bufferToStream from "../../utils/buffertToStream";
 import catchErrors from "../../utils/catchErrors";
 import { clearAuthCookies, setAuthCookies } from "../../utils/cookies";
 import prisma from "../../utils/prisma";
 import generateTokens from "../../utils/tokens";
 
-const bufferToStream = (buffer: Buffer) => {
-  const readable = new Readable();
-  readable.push(buffer);
-  readable.push(null);
-  return readable;
-};
-
 export const registerHandler = catchErrors(async (req, res) => {
-  // For multipart/form-data, `req.body` contains text fields, `req.file` contains uploaded file
-  const request = registerSchema.parse(req.body); // assuming req.body is parsed correctly by multer
+  const request = registerSchema.parse(req.body);
   const { email, username, password } = request;
 
   // Check for existing user
@@ -68,7 +60,7 @@ export const registerHandler = catchErrors(async (req, res) => {
       email,
       username,
       password: hashedPassword,
-      profileImage: profileImageUrl, // Store Cloudinary URL if uploaded
+      profileImage: profileImageUrl,
     },
   });
 
@@ -166,12 +158,10 @@ export const logOutHandler = catchErrors(async (req, res) => {
 });
 
 export const refreshHandler = catchErrors(async (req, res) => {
-  // 1. Get refresh token from cookies
   const refreshToken = req.cookies?.refreshToken;
-  console.log("Refresh token received:", refreshToken);
+
   appAssert(refreshToken, UNAUTHORIZED, "Refresh token missing");
 
-  // 2. Verify refresh token
   let decoded: jwt.JwtPayload;
   try {
     decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as jwt.JwtPayload;
@@ -179,38 +169,33 @@ export const refreshHandler = catchErrors(async (req, res) => {
     throw new Error("Invalid refresh token");
   }
 
-  // 3. Validate token structure
   appAssert(
     decoded.userId && decoded.email && decoded.username,
     BAD_REQUEST,
     "Malformed refresh token"
   );
 
-  // 4. Check if user still exists
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
     select: { id: true, email: true, username: true },
   });
   appAssert(user, UNAUTHORIZED, "User no longer exists");
 
-  // 5. Generate new tokens (rotating refresh token)
   const { accessToken, refreshToken: newRefreshToken } = generateTokens({
     userId: user.id,
     email: user.email,
     username: user.username,
   });
 
-  // 6. Set new cookies
   setAuthCookies({
     res,
     accessToken,
     refreshToken: newRefreshToken,
   });
 
-  // 7. Respond with new access token (optional)
   res.status(OK).json({
     success: true,
     message: "Token refreshed successfully",
-    accessToken, // Only if using Authorization header in addition to cookies
+    accessToken,
   });
 });
