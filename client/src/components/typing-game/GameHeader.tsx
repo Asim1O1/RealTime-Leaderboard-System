@@ -1,11 +1,4 @@
-import {
-  History,
-  Pause,
-  Play,
-  RefreshCw,
-  RotateCcw,
-  Settings,
-} from "lucide-react";
+import { History, Pause, RefreshCw, RotateCcw, Settings } from "lucide-react";
 
 interface GameHeaderProps {
   showSettings: boolean;
@@ -14,7 +7,6 @@ interface GameHeaderProps {
   isGameActive: boolean;
   gameCompleted: boolean;
   handleNewText: () => void;
-  startGame: () => void;
   pauseGame: () => void;
   resetGame: () => void;
   handleViewScores: () => void;
@@ -27,7 +19,6 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   isGameActive,
   gameCompleted,
   handleNewText,
-  startGame,
   pauseGame,
   resetGame,
   handleViewScores,
@@ -58,15 +49,6 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           />
           <span className="sr-only md:not-sr-only">New Text</span>
         </button>
-        {!isGameActive && !gameCompleted && (
-          <button
-            onClick={startGame}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <Play className="h-4 w-4" />
-            <span className="sr-only md:not-sr-only">Start Game</span>
-          </button>
-        )}
         {isGameActive && (
           <button
             onClick={pauseGame}

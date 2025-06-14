@@ -6,15 +6,20 @@ import { getMyScoresApi, submitScoreApi } from "../api/score.api";
 interface Score {
   id: number;
   userId: number;
-  value: number;
+  score: number;
   accuracy: number;
   createdAt: string;
 }
+interface ScoreData {
+  score: number;
+  accuracy: number;
+}
+
 interface ScoreState {
   scores: Score[];
   loading: boolean;
   error: string | null;
-  submitScore: (scoreData: { score: number }) => Promise<void>;
+  submitScore: (scoreData: ScoreData) => Promise<void>;
   getMyScores: () => Promise<void>;
 }
 export const useScoreStore = create<ScoreState>()(
@@ -27,7 +32,10 @@ export const useScoreStore = create<ScoreState>()(
       submitScore: async (scoreData) => {
         set({ loading: true, error: null });
         try {
-          const data = await submitScoreApi(scoreData);
+          const data = await submitScoreApi({
+            score: scoreData.score, // Map to your API expected format
+            accuracy: scoreData.accuracy,
+          });
           set((state) => ({
             scores: [...state.scores, data.score],
             loading: false,

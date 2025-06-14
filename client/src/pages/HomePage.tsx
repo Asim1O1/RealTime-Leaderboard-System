@@ -19,7 +19,7 @@ const HomePage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center">
           <h1 className="text-6xl font-bold text-gray-800 mb-6">
-            Samir Bot Your <span className="text-blue-600">Typing Speed</span>
+            Enhance Your <span className="text-blue-600">Typing Speed</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Challenge yourself in real-time typing competitions. Improve your

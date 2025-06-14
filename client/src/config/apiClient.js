@@ -11,21 +11,29 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Skip refresh attempt for login endpoint
-    if (originalRequest.url.includes("/auth/login")) {
+    // Don't retry on login or refresh endpoints
+    if (
+      originalRequest.url.includes("/auth/login") ||
+      originalRequest.url.includes("/auth/refresh")
+    ) {
       return Promise.reject(error);
     }
 
-    // Only attempt refresh on 401 errors
+    // Only try refresh if it's a 401 and retry hasn't been attempted
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
         const result = await API.post("/auth/refresh");
-        console.log("The result is", result);
-        return API(originalRequest);
+
+        if (result.status === 200) {
+          // Retry the original request after refresh
+          return API(originalRequest);
+        }
       } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        // Optional: Redirect only if the original request was auth-protected
         window.location.href = "/login";
-        return Promise.reject(refreshError);
       }
     }
 

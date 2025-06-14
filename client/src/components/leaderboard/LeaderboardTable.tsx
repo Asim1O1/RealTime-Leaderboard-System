@@ -69,8 +69,16 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {entry.username.charAt(0)}
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 text-white font-semibold">
+                      {entry.profileImage ? (
+                        <img
+                          src={entry.profileImage}
+                          alt={`${entry.username} profile`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{entry.username.charAt(0)}</span>
+                      )}
                     </div>
                     <div>
                       <div className="font-semibold text-gray-800">
@@ -86,24 +94,24 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className="text-lg font-bold text-blue-600">
-                    {entry.score}
+                    {entry.compositeScore}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className="text-sm font-medium text-green-600">
-                    {entry.accuracy}%
+                    {entry.averageAccuracy ?? "-"}%
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className="text-sm text-gray-600">
-                    {entry.gamesPlayed}
+                    {entry.gamesPlayed ?? 0}
                   </span>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+              <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                 No players found matching your criteria.
               </td>
             </tr>

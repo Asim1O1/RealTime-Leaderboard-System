@@ -6,8 +6,7 @@ export interface EnhancedLeaderboardEntry {
   userId: number;
   username: string;
   profileImage?: string;
-  score: number;
-  accuracy?: number;
+  score?: number;
   gamesPlayed?: number;
   isCurrentUser?: boolean;
   performanceBadge?: string;
@@ -54,21 +53,31 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({ data }) => (
           <div className="flex justify-center mb-3">
             {getRankIcon(entry.rank)}
           </div>
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold text-lg">
-            {entry.username.charAt(0)}
+          <div className="w-16 h-16 rounded-full mx-auto mb-3 overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500">
+            {entry.profileImage ? (
+              <img
+                src={entry.profileImage}
+                alt={`${entry.username} profile`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-white font-bold text-lg">
+                {entry.username.charAt(0)}
+              </span>
+            )}
           </div>
           <h3 className="font-bold text-lg text-gray-800 mb-2">
             {entry.username}
           </h3>
           <div className="space-y-1">
             <div className="text-2xl font-bold text-blue-600">
-              {entry?.score} WPM
+              {entry.score} WPM
             </div>
             <div className="text-sm text-gray-600">
-              {entry.accuracy}% accuracy
+              {entry.accuracy ?? "-"}% accuracy
             </div>
             <div className="text-xs text-gray-500">
-              {entry?.gamesPlayed} games
+              {entry.gamesPlayed ?? 0} games
             </div>
           </div>
         </div>

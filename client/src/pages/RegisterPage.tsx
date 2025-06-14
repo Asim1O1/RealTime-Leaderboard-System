@@ -72,11 +72,6 @@ const RegisterPage: React.FC = () => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    // Optional: Add validation for profile image if required
-    // if (!formData.profileImage) {
-    //   newErrors.profileImage = "Profile image is required";
-    // }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -99,7 +94,12 @@ const RegisterPage: React.FC = () => {
       toast.success("Registration successful!");
       navigate("/login");
     } catch (error) {
-      toast.error(error.message);
+      console.error("tHE ERROR WHILE REGISTEING IS ", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Server down! Try again later"
+      );
       setIsLoading(false);
     }
   };

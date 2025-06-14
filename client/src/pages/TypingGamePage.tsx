@@ -11,15 +11,15 @@ import { SettingsPanel } from "../components/typing-game/SettingsPanel";
 import { StatsPanel } from "../components/typing-game/StatsPanel";
 import { TextMetadata } from "../components/typing-game/TextModal";
 import { useAuthStore } from "../stores/auth.store";
+import { playStartSound, playSuccessSound } from "../utils/audioUtils";
+import { getDefaultText } from "../utils/typingContent";
 
 const TypingGamePage = () => {
   const { isAuthenticated, user } = useAuthStore();
-  const [gameText, setGameText] = useState(
-    "Click 'New Text' to load fresh content for typing practice. You can choose from quotes, literature, or custom difficulty levels."
-  );
+  const [gameText, setGameText] = useState(getDefaultText().content);
   const [textMetadata, setTextMetadata] = useState({
-    author: "",
-    category: "default",
+    author: getDefaultText().author,
+    category: getDefaultText().category,
   });
 
   const [userInput, setUserInput] = useState("");
@@ -37,13 +37,14 @@ const TypingGamePage = () => {
 
   // New settings for dynamic content
   const [settings, setSettings] = useState({
-    textLength: "medium",
+    textLength: "short", // fixed
     category: "motivational",
-    gameTime: 60,
+    gameTime: 30, // fixed
   });
 
-  const inputRef = useRef(null);
-  const intervalRef = useRef(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  // Timer effect
+  const intervalRef = useRef<number | null>(null);
 
   const { scores, loading, error, submitScore, getMyScores } = useScoreStore();
 
@@ -51,26 +52,8 @@ const TypingGamePage = () => {
   const fetchNewText = async () => {
     setLoadingText(true);
     try {
-      let minLength, maxLength;
-
-      // Set length parameters based on difficulty
-      switch (settings.textLength) {
-        case "short":
-          minLength = 50;
-          maxLength = 100;
-          break;
-        case "medium":
-          minLength = 100;
-          maxLength = 200;
-          break;
-        case "long":
-          minLength = 200;
-          maxLength = 400;
-          break;
-        default:
-          minLength = 100;
-          maxLength = 200;
-      }
+      let minLength = 50;
+      let maxLength = 100;
 
       // Build API URL with parameters
       const apiUrl = `http://api.quotable.io/quotes/random?minLength=${minLength}&maxLength=${maxLength}&tags=${settings.category}&limit=1`;
@@ -133,7 +116,6 @@ const TypingGamePage = () => {
     fetchNewText();
   }, []);
 
-  // Timer effect
   useEffect(() => {
     if (isGameActive && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
@@ -149,71 +131,100 @@ const TypingGamePage = () => {
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null; // <-- Important to set to null after clearing
       }
     }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null; // <-- Cleanup in effect teardown
       }
     };
   }, [isGameActive, timeLeft]);
 
-  // Calculate WPM and accuracy
+  // Calculate WPM and accuracy using MonkeyType's standard method
   useEffect(() => {
-    const wordsTyped = userInput.trim().split(" ").length;
+    // Calculate time elapsed in minutes
     const timeElapsed = (settings.gameTime - timeLeft) / 60;
-    const currentWpm =
-      timeElapsed > 0 ? Math.round(wordsTyped / timeElapsed) : 0;
-    setWpm(currentWpm);
 
-    // Calculate accuracy
+    if (timeElapsed <= 0) {
+      setWpm(0);
+      return;
+    }
+
+    // Count only correctly typed characters (MonkeyType method)
     let correctChars = 0;
-    for (let i = 0; i < userInput.length; i++) {
+    const compareLength = Math.min(userInput.length, gameText.length);
+
+    for (let i = 0; i < compareLength; i++) {
       if (userInput[i] === gameText[i]) {
         correctChars++;
       }
     }
+
+    // Standard WPM formula: (Correct Characters ÷ 5) ÷ Time in Minutes
+    const currentWpm =
+      timeElapsed > 0 ? Math.round(correctChars / 5 / timeElapsed) : 0;
+    setWpm(Math.max(0, currentWpm));
+
+    // Calculate accuracy - percentage of correct characters out of what was typed
     const currentAccuracy =
-      userInput.length > 0
-        ? Math.round((correctChars / userInput.length) * 100)
+      compareLength > 0
+        ? Math.round((correctChars / compareLength) * 100)
         : 100;
-    setAccuracy(currentAccuracy);
+
+    setAccuracy(Math.max(0, currentAccuracy));
   }, [userInput, timeLeft, gameText, settings.gameTime]);
 
   // Check if typing is completed
   useEffect(() => {
-    if (isGameActive && userInput.length === gameText.length) {
-      // Check if the entire text is typed correctly
-      let allCorrect = true;
+    if (!isGameActive) return;
+
+    // Complete immediately when user has typed exactly the text length
+    if (userInput.length >= gameText.length) {
+      // Stop the timer immediately
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
+      setIsGameActive(false);
+      setGameCompleted(true);
+
+      // Check accuracy for completion message
+      let correctChars = 0;
       for (let i = 0; i < gameText.length; i++) {
-        if (userInput[i] !== gameText[i]) {
-          allCorrect = false;
-          break;
+        if (userInput[i] === gameText[i]) {
+          correctChars++;
         }
       }
 
-      if (allCorrect) {
-        // Stop the timer and complete the game
-        setIsGameActive(false);
-        setGameCompleted(true);
-        setCompletionMessage("Perfect! You completed the text!");
+      const accuracyPercent = Math.round(
+        (correctChars / gameText.length) * 100
+      );
 
-        // Play a success sound
-        const audio = new Audio("/success.mp3");
-        audio.volume = 0.5;
-        audio.play().catch((e) => console.log("Audio play failed:", e));
+      if (accuracyPercent === 100) {
+        setCompletionMessage("Perfect! You completed the text flawlessly!");
+      } else if (accuracyPercent >= 95) {
+        setCompletionMessage("Excellent! Nearly perfect completion!");
+      } else {
+        setCompletionMessage("Great job! You've finished the passage!");
       }
+
+      playSuccessSound();
     }
   }, [userInput, gameText, isGameActive]);
 
   const startGame = () => {
+    console.log("Starting game");
     setIsGameActive(true);
     setGameCompleted(false);
     setScoreSaved(false);
     setCompletionMessage("");
     setTimeLeft(settings.gameTime);
     inputRef.current?.focus();
+    playStartSound(); // Play start sound when game begins
   };
 
   const pauseGame = () => {
@@ -253,9 +264,18 @@ const TypingGamePage = () => {
   };
 
   const handleInputChange = (e) => {
-    if (!isGameActive && !gameCompleted) return;
-
     const value = e.target.value;
+    // Prevent typing beyond the text length (MonkeyType behavior)
+    if (value.length > gameText.length) {
+      return; // Don't allow typing beyond the text
+    }
+
+    // Start the game immediately when user types the first character
+    if (!isGameActive && !gameCompleted && value.length > 0) {
+      console.log("Auto-starting game on first keystroke");
+      startGame();
+    }
+
     setUserInput(value);
     setCurrentIndex(value.length);
   };
@@ -268,9 +288,10 @@ const TypingGamePage = () => {
   };
 
   const handleSettingsChange = (key, value) => {
+    if (key !== "category") return; // only category is changeable
     setSettings((prev) => ({
       ...prev,
-      [key]: value,
+      category: value,
     }));
   };
 
@@ -354,7 +375,6 @@ const TypingGamePage = () => {
               isGameActive={isGameActive}
               gameCompleted={gameCompleted}
               handleNewText={handleNewText}
-              startGame={startGame}
               pauseGame={pauseGame}
               resetGame={resetGame}
               handleViewScores={handleViewScores}
@@ -391,6 +411,7 @@ const TypingGamePage = () => {
                 currentIndex={currentIndex}
                 loadingText={loadingText}
                 renderText={renderText}
+                isGameActive={isGameActive}
               />
 
               {completionMessage && (
@@ -406,13 +427,9 @@ const TypingGamePage = () => {
                 onChange={handleInputChange}
                 className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono text-lg resize-none"
                 rows={6}
-                placeholder={
-                  isGameActive
-                    ? "Start typing here..."
-                    : "Click 'Start Game' to begin typing"
-                }
-                disabled={!isGameActive && !gameCompleted}
-                aria-disabled={!isGameActive && !gameCompleted}
+                placeholder="Start typing to begin the game..."
+                disabled={gameCompleted}
+                aria-disabled={gameCompleted}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"

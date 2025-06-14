@@ -6,6 +6,7 @@ interface GameTextAreaProps {
   currentIndex: number;
   loadingText: boolean;
   renderText: () => JSX.Element[];
+  isGameActive: boolean; // Add this new prop
 }
 
 export const GameTextArea: React.FC<GameTextAreaProps> = ({
@@ -14,11 +15,12 @@ export const GameTextArea: React.FC<GameTextAreaProps> = ({
   currentIndex,
   loadingText,
   renderText,
+  isGameActive, // Destructure the new prop
 }) => (
   <div className="mb-6">
     <div className="flex justify-between items-center mb-4">
       <h2 className="text-xl font-semibold text-gray-800">
-        Type the following text:
+        {isGameActive ? "Keep typing..." : "Type the following text to begin:"}
       </h2>
       {loadingText && (
         <div className="flex items-center gap-2 text-indigo-600">
@@ -28,10 +30,17 @@ export const GameTextArea: React.FC<GameTextAreaProps> = ({
       )}
     </div>
     <div
-      className="bg-gray-50 p-6 rounded-lg border-2 border-gray-200 min-h-32 leading-relaxed font-mono"
+      className={`bg-gray-50 p-6 rounded-lg border-2 ${
+        isGameActive ? "border-blue-300" : "border-gray-200"
+      } min-h-32 leading-relaxed font-mono transition-colors`}
       aria-label="Text to type"
     >
       {renderText()}
+      {!isGameActive && userInput.length === 0 && (
+        <div className="text-gray-400 italic">
+          Just start typing to begin the challenge...
+        </div>
+      )}
     </div>
   </div>
 );
