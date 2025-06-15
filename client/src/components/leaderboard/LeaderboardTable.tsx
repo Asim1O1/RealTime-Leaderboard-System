@@ -94,12 +94,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className="text-lg font-bold text-blue-600">
-                    {entry.compositeScore}
+                    {entry.score}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
                   <span className="text-sm font-medium text-green-600">
-                    {entry.averageAccuracy ?? "-"}%
+                    {entry.accuracy ?? "-"}%
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">

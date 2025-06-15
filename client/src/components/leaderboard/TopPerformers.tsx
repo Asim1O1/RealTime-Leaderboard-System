@@ -10,6 +10,7 @@ export interface EnhancedLeaderboardEntry {
   gamesPlayed?: number;
   isCurrentUser?: boolean;
   performanceBadge?: string;
+  accuracy?: number;
 }
 
 interface TopPerformersProps {

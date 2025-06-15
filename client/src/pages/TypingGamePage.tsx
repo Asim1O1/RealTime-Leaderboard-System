@@ -34,6 +34,7 @@ const TypingGamePage = () => {
   const [loadingText, setLoadingText] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [completionMessage, setCompletionMessage] = useState("");
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   // New settings for dynamic content
   const [settings, setSettings] = useState({
@@ -47,6 +48,114 @@ const TypingGamePage = () => {
   const intervalRef = useRef<number | null>(null);
 
   const { scores, loading, error, submitScore, getMyScores } = useScoreStore();
+
+  // Keyboard shortcuts handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only handle shortcuts when not actively typing in the textarea
+      const isTypingInTextarea =
+        document.activeElement === inputRef.current &&
+        !gameCompleted &&
+        (isGameActive || userInput.length === 0);
+
+      // Global shortcuts (work even when typing)
+      if (e.key === "F1") {
+        e.preventDefault();
+        setShowKeyboardHelp((prev) => !prev);
+        return;
+      }
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (isGameActive) {
+          pauseGame();
+        } else if (showScores) {
+          setShowScores(false);
+        } else if (showSettings) {
+          setShowSettings(false);
+        } else if (showKeyboardHelp) {
+          setShowKeyboardHelp(false);
+        }
+        return;
+      }
+
+      // Don't handle other shortcuts while actively typing
+      if (isTypingInTextarea) return;
+
+      // Game control shortcuts
+      if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        if (gameCompleted) {
+          resetGame();
+        } else if (!isGameActive) {
+          startGame();
+        }
+        return;
+      }
+
+      if (e.key === " " && e.ctrlKey) {
+        e.preventDefault();
+        if (isGameActive) {
+          pauseGame();
+        } else if (!gameCompleted) {
+          startGame();
+        }
+        return;
+      }
+
+      if (e.key === "r" && e.ctrlKey) {
+        e.preventDefault();
+        resetGame();
+        return;
+      }
+
+      if (e.key === "n" && e.ctrlKey) {
+        e.preventDefault();
+        if (!isGameActive) {
+          handleNewText();
+        }
+        return;
+      }
+
+      if (e.key === "s" && e.ctrlKey) {
+        e.preventDefault();
+        handleViewScores();
+        return;
+      }
+
+      if (e.key === "Tab") {
+        e.preventDefault();
+        setShowSettings((prev) => !prev);
+        return;
+      }
+
+      // Quick restart shortcut
+      if (e.key === "r" && e.shiftKey) {
+        e.preventDefault();
+        resetGame();
+        return;
+      }
+
+      // Focus textarea shortcut
+      if (e.key === "f" && e.ctrlKey) {
+        e.preventDefault();
+        inputRef.current?.focus();
+        return;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    isGameActive,
+    gameCompleted,
+    userInput.length,
+    showScores,
+    showSettings,
+    showKeyboardHelp,
+  ]);
 
   // Function to fetch content from Quotable API
   const fetchNewText = async () => {
@@ -131,14 +240,14 @@ const TypingGamePage = () => {
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        intervalRef.current = null; // <-- Important to set to null after clearing
+        intervalRef.current = null;
       }
     }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        intervalRef.current = null; // <-- Cleanup in effect teardown
+        intervalRef.current = null;
       }
     };
   }, [isGameActive, timeLeft]);
@@ -224,7 +333,7 @@ const TypingGamePage = () => {
     setCompletionMessage("");
     setTimeLeft(settings.gameTime);
     inputRef.current?.focus();
-    playStartSound(); // Play start sound when game begins
+    playStartSound();
   };
 
   const pauseGame = () => {
@@ -267,7 +376,7 @@ const TypingGamePage = () => {
     const value = e.target.value;
     // Prevent typing beyond the text length (MonkeyType behavior)
     if (value.length > gameText.length) {
-      return; // Don't allow typing beyond the text
+      return;
     }
 
     // Start the game immediately when user types the first character
@@ -288,7 +397,7 @@ const TypingGamePage = () => {
   };
 
   const handleSettingsChange = (key, value) => {
-    if (key !== "category") return; // only category is changeable
+    if (key !== "category") return;
     setSettings((prev) => ({
       ...prev,
       category: value,
@@ -310,7 +419,6 @@ const TypingGamePage = () => {
         className += "text-gray-600";
       }
 
-      // Add special character rendering for spaces and newlines
       if (char === " ") {
         return (
           <span key={index} className={className} aria-label="space">
@@ -340,6 +448,65 @@ const TypingGamePage = () => {
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
+
+  // Keyboard Help Component
+  const KeyboardHelp = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-bold">Keyboard Shortcuts</h3>
+          <button
+            onClick={() => setShowKeyboardHelp(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="font-medium">Enter</span>
+            <span>Start/Restart game</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Ctrl + Space</span>
+            <span>Start/Pause game</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Ctrl + R</span>
+            <span>Reset game</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Shift + R</span>
+            <span>Quick restart</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Ctrl + N</span>
+            <span>New text</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Ctrl + S</span>
+            <span>View scores</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Tab</span>
+            <span>Toggle settings</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Ctrl + F</span>
+            <span>Focus input</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Esc</span>
+            <span>Pause/Close modals</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">F1</span>
+            <span>Toggle this help</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
@@ -435,9 +602,20 @@ const TypingGamePage = () => {
                 spellCheck="false"
               />
 
-              <div className="mt-2 text-xs text-gray-500">
-                <span className="font-medium">Keyboard shortcuts:</span> Press
-                Tab + Enter to restart, Esc to pause
+              <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                <div>
+                  <span className="font-medium">Quick shortcuts:</span>
+                  <span className="ml-1">
+                    Enter (restart), Ctrl+R (reset), Ctrl+N (new text), Esc
+                    (pause)
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowKeyboardHelp(true)}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  All shortcuts (F1)
+                </button>
               </div>
             </div>
 
@@ -463,6 +641,8 @@ const TypingGamePage = () => {
                 setShowScores={setShowScores}
               />
             )}
+
+            {showKeyboardHelp && <KeyboardHelp />}
           </>
         )}
       </div>
