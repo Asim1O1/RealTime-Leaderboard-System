@@ -1,4 +1,4 @@
-import { RefreshCw, Save, Trophy } from "lucide-react";
+import { RefreshCw, Save, Trophy, X } from "lucide-react";
 
 interface ResultsModalProps {
   wpm: number;
@@ -10,6 +10,7 @@ interface ResultsModalProps {
   resetGame: () => void;
   handleNewText: () => void;
   handleSaveScore: () => void;
+  onClose: () => void; // ✅ Add this line
 }
 
 export const ResultsModal: React.FC<ResultsModalProps> = ({
@@ -22,11 +23,21 @@ export const ResultsModal: React.FC<ResultsModalProps> = ({
   resetGame,
   handleNewText,
   handleSaveScore,
+  onClose, // ✅ Accept the prop
 }) => (
-  <div className="bg-white rounded-xl shadow-lg p-8 border-2 border-green-200 mb-6">
+  <div className="relative bg-white rounded-xl shadow-lg p-8 border-2 border-green-200 mb-6">
+    {/* ✅ Close Button */}
+    <button
+      onClick={onClose}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+    >
+      <X className="h-6 w-6" />
+    </button>
+
     <div className="text-center">
       <Trophy className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
       <h2 className="text-3xl font-bold text-gray-800 mb-6">Game Complete!</h2>
+
       <div className="grid md:grid-cols-3 gap-6 mb-6">
         <div className="bg-green-50 p-4 rounded-lg">
           <div className="text-2xl font-bold text-green-600">{wpm} WPM</div>

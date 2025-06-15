@@ -123,15 +123,12 @@ export const getQuotesByCategory = (category) => {
   );
 };
 
-export const getDefaultText = () => {
-  return {
-    content:
-      "Click 'New Text' to load fresh content for typing practice. You can choose from quotes, literature, or custom difficulty levels.",
-    author: "Typing Game",
-    tags: ["default"],
-    category: "default",
-  };
-};
+export const getDefaultText = () => ({
+  content:
+    "The quick brown fox jumps over the lazy dog. This classic pangram contains every letter of the alphabet at least once.",
+  author: "Classic Pangram",
+  category: "practice",
+});
 
 // API endpoint configurations
 export const API_CONFIG = {
