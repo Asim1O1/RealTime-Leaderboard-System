@@ -29,6 +29,22 @@ const HomePage: React.FC = () => {
             Enhance Your{" "}
             <span style={{ color: "var(--primary)" }}>Typing Speed</span>
           </h1>
+
+          {/* TypeIt Tagline */}
+          <h2
+            className="text-3xl font-semibold mb-4"
+            style={{ color: "var(--primary)" }}
+          >
+            TypeIt — Master the Keys, Rule the Game
+          </h2>
+          <p
+            className="text-lg mb-8 max-w-xl mx-auto"
+            style={{ color: "var(--text-secondary, var(--text))" }}
+          >
+            Your ultimate typing challenge where speed meets precision. Boost
+            your skills one key at a time.
+          </p>
+
           <p
             className="text-xl mb-8 max-w-2xl mx-auto"
             style={{ color: "var(--text-secondary, var(--text))" }}

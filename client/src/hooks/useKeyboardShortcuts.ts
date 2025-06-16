@@ -15,7 +15,7 @@ interface KeyboardShortcutsProps {
   setShowSettings: (show: boolean) => void;
   inputRef: React.RefObject<HTMLTextAreaElement>;
   setShowScores: (show: boolean) => void;
-  setShowKeyboardHelp: (show: boolean) => void;
+  setShowKeyboardHelp: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useKeyboardShortcuts = ({

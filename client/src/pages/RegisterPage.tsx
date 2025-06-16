@@ -94,7 +94,6 @@ const RegisterPage: React.FC = () => {
       toast.success("Registration successful!");
       navigate("/login");
     } catch (error) {
-      console.error("tHE ERROR WHILE REGISTEING IS ", error);
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
@@ -105,11 +104,11 @@ const RegisterPage: React.FC = () => {
   };
 
   const navigateToLogin = () => {
-    console.log("Navigate to login");
+    navigate("/login");
   };
 
   const navigateToHome = () => {
-    console.log("Navigate to home");
+    navigate("/");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -129,20 +128,20 @@ const RegisterPage: React.FC = () => {
         <div className="text-center mb-8">
           <div
             onClick={navigateToHome}
-            className="inline-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-6"
+            className="inline-flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-4"
           >
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-2">
-              <User className="h-6 w-6 text-white" />
+              <User className="h-5 w-5 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TypeMaster
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              TypeIt
             </span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Join TypeMaster!
+          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+            Ready, Set, Type!
           </h1>
-          <p className="text-gray-600">
-            Create your account and start improving your typing skills
+          <p className="text-gray-600 text-sm">
+            Join the fun and boost your typing skills today.
           </p>
         </div>
 
@@ -282,29 +281,6 @@ const RegisterPage: React.FC = () => {
                   {errors.profileImage}
                 </p>
               )}
-            </div>
-
-            {/* Terms Checkbox */}
-            <div className="flex items-start">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
-              />
-              <label
-                htmlFor="terms"
-                className="ml-2 block text-sm text-gray-700"
-              >
-                I agree to the{" "}
-                <button className="text-blue-600 hover:text-blue-500 font-medium">
-                  Terms of Service
-                </button>{" "}
-                and{" "}
-                <button className="text-blue-600 hover:text-blue-500 font-medium">
-                  Privacy Policy
-                </button>
-              </label>
             </div>
 
             {/* Submit Button */}

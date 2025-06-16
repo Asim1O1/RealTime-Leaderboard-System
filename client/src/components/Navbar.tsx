@@ -128,7 +128,7 @@ const Navbar: React.FC = () => {
               className="text-xl font-bold bg-clip-text text-transparent"
               style={{ color: "var(--heading, var(--text))" }}
             >
-              TypeMaster
+              TypeIt
             </span>
           </div>
 

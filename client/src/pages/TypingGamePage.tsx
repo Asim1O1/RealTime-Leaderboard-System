@@ -31,7 +31,7 @@ const TypingGamePage = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [completionMessage, setCompletionMessage] = useState("");
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,6 +60,11 @@ const TypingGamePage = () => {
     };
     fetchInitialText();
   }, []);
+  useEffect(() => {
+    if (gameCompleted) {
+      setShowResultsModal(true);
+    }
+  }, [gameCompleted]);
 
   const handleNewTextWrapper = async () => {
     if (!isGameActive) {
@@ -104,9 +109,11 @@ const TypingGamePage = () => {
     }
   };
 
-  const handleSettingsChange = (key: string, value: string) => {
+  const handleSettingsChange = (key: string, value: string | number) => {
     if (key !== "category") return;
-    setSettings((prev) => ({ ...prev, category: value }));
+    if (typeof value === "string") {
+      setSettings((prev) => ({ ...prev, category: value }));
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -234,12 +241,13 @@ const TypingGamePage = () => {
               pauseGame={pauseGame}
               resetGame={resetGame}
               handleViewScores={handleViewScores}
+              setShowKeyboardHelp={setShowKeyboardHelp}
             />
           </div>
         </div>
 
         {/* Modals */}
-        {gameCompleted && (
+        {showResultsModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div
               className="rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300"
@@ -258,6 +266,7 @@ const TypingGamePage = () => {
                 resetGame={resetGame}
                 handleNewText={handleNewTextWrapper}
                 handleSaveScore={handleSaveScore}
+                onClose={() => setShowResultsModal(false)}
               />
             </div>
           </div>

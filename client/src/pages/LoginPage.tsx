@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
               <Mail className="h-6 w-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TypeMaster
+              TypeIt
             </span>
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -132,20 +132,6 @@ const LoginPage: React.FC = () => {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Remember me
-                </label>
-              </div>
               <button
                 type="button"
                 className="text-sm text-blue-600 hover:text-blue-500 font-medium"
