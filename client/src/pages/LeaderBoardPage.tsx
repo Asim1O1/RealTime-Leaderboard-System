@@ -85,9 +85,21 @@ const LeaderboardPage: React.FC = () => {
   if (error) return <ErrorState error={error} onRetry={handleRetry} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+    <div
+      className="min-h-screen p-4"
+      style={{
+        background: "var(--background)",
+        color: "var(--text)",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <div
+          className="rounded-xl shadow-lg p-8 mb-6"
+          style={{
+            background: "var(--card-background)",
+            border: "1px solid var(--border)",
+          }}
+        >
           <LeaderboardHeader />
           <LeaderboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
           <LeaderboardSearch

@@ -11,7 +11,10 @@ export const LeaderboardTabs: React.FC<LeaderboardTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => (
-  <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6">
+  <div
+    className="flex gap-1 rounded-lg p-1 mb-6"
+    style={{ background: "var(--toggle-background)" }}
+  >
     {[
       { key: "daily", label: "Daily" },
       { key: "weekly", label: "Weekly" },
@@ -21,11 +24,18 @@ export const LeaderboardTabs: React.FC<LeaderboardTabsProps> = ({
       <button
         key={key}
         onClick={() => setActiveTab(key as TabKey)}
-        className={`px-6 py-2 rounded-md font-medium transition-all ${
-          activeTab === key
-            ? "bg-white text-blue-600 shadow-sm"
-            : "text-gray-600 hover:text-gray-800"
-        }`}
+        className={`px-6 py-2 rounded-md font-medium transition-all`}
+        style={{
+          background:
+            activeTab === key
+              ? "var(--toggle-active-background)"
+              : "transparent",
+          color:
+            activeTab === key
+              ? "var(--toggle-active-text)"
+              : "var(--toggle-inactive-text)",
+          boxShadow: activeTab === key ? "var(--shadow-sm)" : "none",
+        }}
       >
         {label}
       </button>

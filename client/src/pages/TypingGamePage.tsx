@@ -145,7 +145,14 @@ const TypingGamePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
+    <div
+      className="min-h-screen p-4"
+      style={{
+        background: "var(--background)",
+        color: "var(--text)",
+        transition: "background 0.3s ease, color 0.3s ease",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {showSettings && (
           <SettingsPanel
@@ -162,7 +169,13 @@ const TypingGamePage = () => {
           formatTime={formatTime}
         />
 
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <div
+          className="rounded-xl shadow-lg p-8 mb-6"
+          style={{
+            background: "var(--card-background)",
+            border: "1px solid var(--border)",
+          }}
+        >
           {textMetadata.author && (
             <TextMetadata
               author={textMetadata.author}
@@ -178,7 +191,14 @@ const TypingGamePage = () => {
           />
 
           {completionMessage && (
-            <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg text-green-800 font-medium text-center animate-pulse">
+            <div
+              className="mb-4 p-4 rounded-lg text-center animate-pulse"
+              style={{
+                background: "var(--success-bg)",
+                color: "var(--success-text)",
+                border: "1px solid var(--success-border)",
+              }}
+            >
               {completionMessage}
             </div>
           )}
@@ -188,7 +208,12 @@ const TypingGamePage = () => {
             ref={inputRef}
             value={userInput}
             onChange={(e) => handleInputChange(e.target.value)}
-            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono text-lg resize-none"
+            className="w-full p-4 rounded-lg focus:outline-none font-mono text-lg resize-none"
+            style={{
+              background: "var(--input-background)",
+              color: "var(--input-text)",
+              border: "2px solid var(--input-border)",
+            }}
             rows={6}
             placeholder="Start typing to begin the game..."
             disabled={gameCompleted}
@@ -198,7 +223,6 @@ const TypingGamePage = () => {
             spellCheck="false"
           />
 
-          {/* Enhanced Game Header - right below typing area */}
           <div className="mt-6">
             <GameHeader
               showSettings={showSettings}
@@ -214,10 +238,16 @@ const TypingGamePage = () => {
           </div>
         </div>
 
-        {/* Fixed Position Modals - These will appear on top of everything */}
+        {/* Modals */}
         {gameCompleted && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
+            <div
+              className="rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300"
+              style={{
+                background: "var(--modal-background)",
+                color: "var(--modal-text)",
+              }}
+            >
               <ResultsModal
                 wpm={wpm}
                 accuracy={accuracy}
@@ -228,7 +258,6 @@ const TypingGamePage = () => {
                 resetGame={resetGame}
                 handleNewText={handleNewTextWrapper}
                 handleSaveScore={handleSaveScore}
-                onClose={() => setIsModalOpen(false)}
               />
             </div>
           </div>
@@ -236,7 +265,13 @@ const TypingGamePage = () => {
 
         {showScores && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
+            <div
+              className="rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300"
+              style={{
+                background: "var(--modal-background)",
+                color: "var(--modal-text)",
+              }}
+            >
               <ScoresModal
                 scores={scores}
                 loading={loading}
@@ -249,7 +284,13 @@ const TypingGamePage = () => {
 
         {showKeyboardHelp && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
+            <div
+              className="rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300"
+              style={{
+                background: "var(--modal-background)",
+                color: "var(--modal-text)",
+              }}
+            >
               <KeyboardHelp onClose={() => setShowKeyboardHelp(false)} />
             </div>
           </div>
