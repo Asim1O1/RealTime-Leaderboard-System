@@ -48,23 +48,43 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({ data }) => (
     {data.map((entry) => (
       <div
         key={entry.rank}
-        className={`rounded-xl p-6 border-2 shadow-lg transition-all duration-300 ${
-          entry.rank === 1 ? "hover:scale-[1.02]" : "hover:scale-[1.01]"
-        }`}
+        className="rounded-lg p-4 border-2 transition-all duration-200 hover:border-opacity-80"
         style={{
-          background: `var(--rank-${entry.rank}-bg)`,
-          borderColor: `var(--rank-${entry.rank}-border)`,
-          boxShadow: "0 4px 6px var(--card-shadow)",
+          background: "var(--card-background)",
+          borderColor:
+            entry.rank === 1
+              ? "var(--primary-color, #10b981)"
+              : "var(--border)",
+          fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
         }}
       >
         <div className="text-center">
-          <div className="flex justify-center mb-3">
-            {getRankIcon(entry.rank)}
+          {/* Rank indicator with typing theme */}
+          <div className="flex justify-center items-center mb-3">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+              style={{
+                background:
+                  entry.rank === 1
+                    ? "var(--primary-color, #10b981)"
+                    : entry.rank === 2
+                    ? "#f59e0b"
+                    : entry.rank === 3
+                    ? "#ef4444"
+                    : "var(--border)",
+                color: entry.rank <= 3 ? "white" : "var(--text)",
+              }}
+            >
+              #{entry.rank}
+            </div>
           </div>
+
+          {/* Avatar */}
           <div
-            className="w-16 h-16 rounded-full mx-auto mb-3 overflow-hidden flex items-center justify-center"
+            className="w-12 h-12 rounded-full mx-auto mb-3 overflow-hidden flex items-center justify-center"
             style={{
-              background: "var(--avatar-bg)",
+              background: "var(--border)",
+              border: "2px solid var(--border)",
             }}
           >
             {entry.profileImage ? (
@@ -75,49 +95,105 @@ export const TopPerformers: React.FC<TopPerformersProps> = ({ data }) => (
               />
             ) : (
               <span
-                className="font-bold text-lg"
+                className="font-bold text-sm"
                 style={{
-                  color: "var(--avatar-text)",
+                  color: "var(--text)",
                 }}
               >
-                {entry.username.charAt(0)}
+                {entry.username.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
+
+          {/* Username */}
           <h3
-            className="font-bold text-lg mb-2"
+            className="font-bold text-base mb-3"
             style={{
-              color: `var(--rank-${entry.rank}-text)`,
+              color: "var(--text)",
             }}
           >
             {entry.username}
           </h3>
-          <div className="space-y-1">
-            <div
-              className="text-2xl font-bold"
-              style={{
-                color: `var(--rank-${entry.rank}-score)`,
-              }}
-            >
-              {entry.score} WPM
+
+          {/* Stats in terminal style */}
+          <div className="space-y-2 text-left">
+            <div className="flex justify-between items-center">
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                wpm:
+              </span>
+              <span
+                className="font-bold text-lg"
+                style={{
+                  color:
+                    entry.rank === 1
+                      ? "var(--primary-color, #10b981)"
+                      : "var(--text)",
+                }}
+              >
+                {entry.score}
+              </span>
             </div>
-            <div
-              className="text-sm"
-              style={{
-                color: "var(--text-secondary)",
-              }}
-            >
-              {entry.accuracy ?? "-"}% accuracy
+
+            <div className="flex justify-between items-center">
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                acc:
+              </span>
+              <span
+                className="text-sm font-mono"
+                style={{ color: "var(--text)" }}
+              >
+                {entry.accuracy ?? "-"}%
+              </span>
             </div>
-            <div
-              className="text-xs"
-              style={{
-                color: "var(--text-tertiary)",
-              }}
-            >
-              {entry.gamesPlayed ?? 0} games
+
+            <div className="flex justify-between items-center">
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                games:
+              </span>
+              <span
+                className="text-sm font-mono"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                {entry.gamesPlayed ?? 0}
+              </span>
             </div>
           </div>
+
+          {/* Progress bar for top performer */}
+          {entry.rank === 1 && (
+            <div
+              className="mt-3 pt-3 border-t"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <div className="flex items-center gap-2 text-xs">
+                <span style={{ color: "var(--text-secondary)" }}>champion</span>
+                <div
+                  className="flex-1 h-1 rounded-full"
+                  style={{ background: "var(--border)" }}
+                >
+                  <div
+                    className="h-1 rounded-full animate-pulse"
+                    style={{
+                      background: "var(--primary-color, #10b981)",
+                      width: "100%",
+                    }}
+                  />
+                </div>
+                <span style={{ color: "var(--primary-color, #10b981)" }}>
+                  👑
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     ))}

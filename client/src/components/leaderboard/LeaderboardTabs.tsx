@@ -1,6 +1,6 @@
 import React from "react";
 
-type TabKey = "daily" | "weekly" | "monthly" | "allTime";
+type TabKey = "allTime";
 
 interface LeaderboardTabsProps {
   activeTab: TabKey;
@@ -15,12 +15,7 @@ export const LeaderboardTabs: React.FC<LeaderboardTabsProps> = ({
     className="flex gap-1 rounded-lg p-1 mb-6"
     style={{ background: "var(--toggle-background)" }}
   >
-    {[
-      { key: "daily", label: "Daily" },
-      { key: "weekly", label: "Weekly" },
-      { key: "monthly", label: "Monthly" },
-      { key: "allTime", label: "All Time" },
-    ].map(({ key, label }) => (
+    {[{ key: "allTime", label: "All Time" }].map(({ key, label }) => (
       <button
         key={key}
         onClick={() => setActiveTab(key as TabKey)}
